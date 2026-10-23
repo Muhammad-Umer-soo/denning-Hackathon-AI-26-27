@@ -51,3 +51,16 @@
 - **Decision:**
   - Branch naming convention: `feat/FR-<ID>-<short-description>` (e.g., `feat/FR-01-dashboard`).
   - Pull Requests must document PRD section, changes, verification, and update `docs/traceability.md`.
+
+---
+
+## ADR-005: Backend API Architecture, Drizzle Schema & AI Safety Guardrails
+- **Status:** Approved & Implemented
+- **Context:** Project Constitution §3, §4, §6, §7, §8, and §9 mandate server-side data integrity, RBAC, input validation with Zod, Drizzle ORM schemas, and AI safety guardrails.
+- **Decision:**
+  - **Server-Only Layer:** Database operations isolated in `src/lib/server/db/` using Drizzle ORM with `@neondatabase/serverless` and fallback sample repository.
+  - **Input & Environment Validation:** All API query parameters, body payloads, and environment variables validated using Zod with explicit error messages and no leaked stack traces.
+  - **RBAC & Privacy:** Role-based access control implemented server-side (`requireRole`). Planner indicator endpoints (`/api/planner/indicators`) enforce role authorization and strict minimum group size (>= 5 farmers) to prevent any farmer re-identification.
+  - **Soil AI Safety:** The soil assistant endpoint (`/api/soil/assist`) enforces explicit user consent, image file size (<= 5MB) & MIME constraints, rate limiting, and strict agronomic guardrails prohibiting exact NPK, pH, or chemical fertilizer prescription from visual images alone.
+  - **Automated Verification:** Verified via Vitest unit and integration test suites covering all routes and safety constraints.
+
